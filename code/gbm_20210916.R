@@ -177,12 +177,3 @@ CI_lower<-mean-1.96*sd
 CI_upper<-mean+1.96*sd
 print(paste("(",CI_lower,",",CI_upper,")"))
 #( 0.839135748952328 , 0.840344861681117 )
-
-
-auc = NULL
-for( i in 1:50){
-  auc<-c(summary_gbm[[i]][[4]][[2]],auc_acc)
-  
-}
-CI_lower = mean(auc) - 1.96*sd(auc)/sqrt(50)
-CI_upper = mean(auc) + 1.96*sd(auc)/sqrt(50)
