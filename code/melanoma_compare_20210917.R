@@ -102,44 +102,6 @@ poverty_boxplot<-ggpar(poverty_boxplot,
 ################################################
 ##5.Bar plot for Ulceration,Stage versus Race
 #################################################
-##function of bar plot
-race_cat<-function(x,y){
-table<-xtabs(~get(x)+get(y),data=dat)
-#table<-table[-2,]
-table<-table[rownames(table)!='Unkown',]
-#table<-table[rownames(table)!='Unknown',]
-chi_test<-chisq_test(table)
-prop_tb<-prop.table(table,2)
-temp<-as.data.frame(t(prop_tb))
-temp$Freq<-round(temp$Freq,2)
-names(temp)=c('Race','Feat','Proportion')
-for (i in 1:5){
-  temp[i,3] = 1-temp[i+5,3]-temp[i+10,3]
-} 
-plot<-ggbarplot(temp,
-          x='Race',
-          y='Proportion',
-          fill='Feat',
-          color = 'Feat',
-          palette='jco',
-          label=TRUE,
-          lab.col='Black',lab.pos='out',lab.size=4)+
-  labs(subtitle = get_test_label(chi_test,detailed = TRUE),
-       title = "Ulceration proportion by Race/Ethnicity",
-       #title = "Stage proportion by Race/Ethnicity",
-       fill='Ulceration',
-       color = 'Ulceration'
-       #fill='Stage'
-       #fill="Metastasis"
-       )+
-  scale_x_discrete(labels=c('White','Black','Asian','American Indian','Hispanics'))
- return(plot)
-}
-plot1<-race_cat('Ulceration','Race')
-plot2<-race_cat('Stage','Race')
-#race_cat('DMetastasis','Race')
-
-
 table<-xtabs(~get('Ulceration')+get('Race'),data=dat)
 #table<-table[-2,]
 table<-table[rownames(table)!='Unkown',]
@@ -202,19 +164,4 @@ plot1<-ggbarplot(temp,
   )+
   scale_x_discrete(labels=c('NHWs','Blacks','API','AI/AN','Hispanics'))
 
-
-
-
-
-
-
-
-
-
-
 ggarrange(thickness_boxplot,poverty_boxplot,plot,plot1,common.legend=FALSE, labels = c("A", "B", "C","D"), ncol = 2, nrow = 2) 
-
-
-
-
-
