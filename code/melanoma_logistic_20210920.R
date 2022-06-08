@@ -1,33 +1,15 @@
 library(ggplot2)
 
-
 #1. load data
 load("C:/learning/R/melanoma/manusript/data/final_data_ml_20210901.RData")
 
 # 2.logistic interaction regression 
-#####################################################
-####rebuild logistic model functions 2020/10/12
-####################################################
 #######Race,Ulceration interaction
 outcome <- "DSevent"
 x<-c("Year","Age","sex","Partner","Site","Histology","Poverty","Education",
              "Stage","LN","Thickness","DMetastasis","PS_Surg","Oth_Surg",
              "LN_Surg","Radiation","Chemotherapy")
 inter_term <-c("Race","Ulceration")
-
-######Race,Thickness interaction
-outcome <- "DSevent"
-x<-c("Year","Age","sex","Partner","Site","Histology","Poverty","Education",
-     "Stage","LN","Ulceration","DMetastasis","PS_Surg","Oth_Surg",
-     "LN_Surg","Radiation","Chemotherapy")
-inter_term <-c("Race","Breslow")
-
-####Race, Dmetastasis interaction
-outcome <- "DSevent"
-x<-c("Year","Age","sex","Partner","Site","Histology","Poverty","Education",
-     "Stage","LN","Thickness","Ulceration","PS_Surg","Oth_Surg",
-     "LN_Surg","Radiation","Chemotherapy")
-inter_term <-c("Race","DMetastasis")
 
 ##############Stage,Race interaction
 dat1$stage = 0
@@ -74,11 +56,6 @@ result_inter = Race_interact(outcome,x,inter_term,dat1)
 result_int_coeff = result_inter[[1]]
 result_int_cov =result_inter[[2]]
 
-
-model1<-glm(DSevent~LN_Surg+PS_Surg+Oth_Surg+Radiation+Chemotherapy+LN+Thickness+DMetastasis+Age+Site+Partner+Poverty+Education+sex+Histology+Race+Ulceration,family=binomial(link='logit'),data=dat1)
-model2<-glm(DSevent~LN_Surg+PS_Surg+Oth_Surg+Radiation+Chemotherapy+LN +Thickness+DMetastasis+Age+Site+Partner+Poverty+Education+sex+Histology+Race*Ulceration,family=binomial(link='logit'),data=dat1)
-anova(model1,model2,test='LRT')##0.01651 
-
 #4. summary interaction table
 ###########################################################################
 ###Function(table of Race interaction):table of race interaction with the feature
@@ -107,7 +84,7 @@ Table_Race_interact<-function(inter_coeff,inter_cov){
   
 }
 
-# Ulceration(Dmetastasis)*Race
+# Ulceration*Race
 Table_Race_interact<-function(inter_coeff,inter_cov){
   raceinter = data.frame(Estimates = c(inter_coeff$Estimate[1:4],#inter_coeff$Estimate[1:4]+inter_coeff$Estimate[5:8]),
                          inter_coeff$Estimate[1:4]+inter_coeff$Estimate[9:12]),
@@ -155,8 +132,6 @@ Plot_Inter<-function(inter_tbl,var_name){
   
  }
 
-Plot_Inter(inter_table,"Distant Metastasis")
-Plot_Inter(inter_table,"Breslow Thickness")
 p1<-Plot_Inter(inter_table,"Ulceration")
 p2<-Plot_Inter(inter_table,"Stage")
 
@@ -165,88 +140,3 @@ print(combo)
 
 # ggsave("C:/learning/R/melanoma/figure/race_thick_int.eps", width = 30, height = 20, units = "cm")
 # ggsave("C:/learning/R/melanoma/figure/race_DM_int.eps", width =30, height = 20, units = "cm")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# depracate!!
-inter_plot<-ggplot(inter_table,aes(x=Variable,y = round(OR,2),group=Race,color=Race))+
-  geom_line(size=2)+
-  geom_hline(yintercept = 1,alpha=1,lty=2,size=2)+
-  geom_errorbar(aes(ymin=exp(LB),ymax=exp(UB)),width=0.1,alpha=1,lty=2,size=1)+
-  geom_text(aes(label=paste0('(',round(OR,2),')')),position = position_dodge(width = 0.5))+
-  theme_bw()+
-  theme(axis.text.y  = element_text(size = 15),axis.text.x = element_text(size = 15),
-        axis.title.x = element_text(size = 15),
-        plot.title = element_text(size = 16, face = "bold"))+
-  labs(x='Ulceration',y='Odds Ratio',title='Odds ratio of death of other races relative to NHW')+
-  scale_colour_discrete(labels = c('Hispanics','American Indian','Asian','American African'))+
-  scale_color_manual(values=c("#66CC33","#FF0000","#FFCC33","#330000"))
-
-
-print(inter_plot)
-
-inter_plot2<-ggplot(inter_table,aes(x=Variable,y = round(OR,2),group=Race,color=Race))+
-  geom_line(size=2)+
-  geom_hline(yintercept = 1,alpha=1,lty=2,size=2)+
-  geom_errorbar(aes(ymin=exp(LB),ymax=exp(UB)),width=0.1,alpha=1,lty=2,size=1)+
-  geom_text(aes(label=paste0('(',round(OR,2),')')),position = position_dodge(width = 0.5))+
-  theme_bw()+
-  theme(axis.text.y  = element_text(size = 15),axis.text.x = element_text(size = 15),
-        axis.title.x = element_text(size = 15),
-        plot.title = element_text(size = 16, face = "bold"))+
-  labs(x='Distant Metastasis',y='Odds Ratio',title='Odds ratio of death of other races relative to NHW')+
-  scale_colour_discrete(labels = c('Hispanics','American Indian','Asian','American African'))+
-  scale_color_manual(values=c("#66CC33","#FF0000","#FFCC33","#330000"))
-
-
-print(inter_plot2)
-
-
-inter_plot3<-ggplot(inter_table,aes(x=Variable,y = round(OR,2),group=Race,color=Race))+
-  geom_line(size=2)+
-  geom_hline(yintercept = 1,alpha=1,lty=2,size=2)+
-  geom_errorbar(aes(ymin=exp(LB),ymax=exp(UB)),width=0.1,alpha=1,lty=2,size=1)+
-  geom_text(aes(label=paste0('(',round(OR,2),')')),position = position_dodge(width = 0.5))+
-  theme_bw()+
-  theme(axis.text.y  = element_text(size = 15),axis.text.x = element_text(size = 15),
-        axis.title.x = element_text(size = 15),
-        plot.title = element_text(size = 16, face = "bold"))+
-  labs(x='Stage',y='Odds Ratio',title='Odds ratio of death of other races relative to NHW')+
-  scale_colour_discrete(labels = c('Hispanics','American Indian','Asian','American African'))+
-  scale_color_manual(values=c("#66CC33","#FF0000","#FFCC33","#330000"))
-
-
-print(inter_plot3)
-
-
-
-
-
-
-
-
-
-######data mutate for thickness and race interaction
-a<-glm(DSevent ~ Year + Age + sex + Partner + Site + Histology + Poverty + 
-         Education + Stage + LN + Thickness + Ulceration + PS_Surg + 
-         Oth_Surg + LN_Surg + Radiation + Chemotherapy + Race * DMetastasis,family=binomial(link='logit'),data=dat1)
-assignthick<-function(x){
-  ret = rep(NA,length(x))
-  ret[x<1]='I'
-  ret[x>=1&x<2]='II'
-  ret[x>=2&x<4]='III'
-  ret[x>=4] ='IV'
-  return(as.factor(ret))
-}
-dat1$Breslow<-assignthick(dat1$Thickness)
